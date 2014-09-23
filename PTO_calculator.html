@@ -1,0 +1,145 @@
+<title>PTO Calculator</title>
+
+<link rel="stylesheet" type="text/css" href="css/jquery-ui.css" />
+
+<script type="text/javascript" src="js/jquery.js"></script>
+<script type="text/javascript" src="js/jquery-ui.js"></script>
+
+
+<style type="text/css">
+	body {
+		font-size: 12px;
+		
+	}
+	
+	article {
+		border: solid 2px #666;
+		padding: 5px;
+		width: 350px;
+	}
+
+	label {
+		font-weight: bold;
+	}
+	
+	.container {
+		margin-right: 10%;
+		margin-bottom: 2em;
+		height: auto;
+	}
+	
+	#vacDaysSelected {
+		list-style-type: none;
+		border: dashed 1px #666;
+		width: 50px;
+		margin-left: 185px;
+		margin-top: 2px;
+		min-height: 1.25em;
+	}
+	
+	#vacDaysSelected li {
+		height: 1.25em;
+		text-align: left;
+		margin-left: -35px;
+		cursor: pointer;
+	}
+	
+	#vacDaysSelected li:hover {
+		background-color: #999;
+		color: #FFF;
+	}
+
+</style>
+
+<script type="text/javascript">
+$(document).ready(function() {
+$('#vacDayToAddInput').datepicker({
+	onSelect: function() {
+		var selectedDate = $(this).val();
+		$('#vacDaysSelected').append('<li>' + selectedDate + '</li>');
+		//$(this).val('');
+		
+		$('#vacDaysSelected li').on('click', function() {
+			$(this).remove();
+		});//end vacDaysSelected click
+	}
+});//end datepicker
+$('#startDateInput').datepicker();
+$('#endDateInput').datepicker();
+$('.button').button();
+
+
+
+$('#calcBTN').on('click', function() {
+	var vacDaysCount = $('#vacDaysSelected li').length;
+	var vacHoursUsed = vacDaysCount * 8;
+	
+	var currentHours = parseFloat($('#currentPTOHoursInput').val());
+	var PTORate = parseFloat($('#rateInput').val());
+	
+	var startDate = new Date($('#startDateInput').val());
+	var endDate = new Date($('#endDateInput').val());
+	
+	var startWeek = getWeek(startDate);
+	var endWeek = getWeek(endDate);
+	if(endWeek < startWeek) {
+		endWeek = endWeek + 52;
+	}//end if
+	//alert(endWeek + '-' + startWeek)
+	var weeksRemaining = endWeek - startWeek;
+	
+	var totalHours = (((PTORate * weeksRemaining) + currentHours) - vacHoursUsed);
+	//alert(PTORate + '*' + weeksRemaining + '+' + currentHours + '-' + vacHoursUsed);
+	$('#result').text('PTO Hours Remaining: ' + totalHours.toFixed(2));
+});//end calcBTN click
+
+
+});//end ready function
+
+function getWeek(dateToCheck) {
+	var checkDate = new Date(dateToCheck.getTime());
+  // Find Thursday of this week starting on Sunday
+  checkDate.setDate(checkDate.getDate() + 4 - (checkDate.getDay()));
+  var time = checkDate.getTime();
+  checkDate.setMonth(0); // Compare with Jan 1
+  checkDate.setDate(1);
+  return Math.floor(Math.round((time - checkDate) / 86400000) / 7) + 1;
+}//end getWeek function
+</script>
+    
+<html>
+<body>
+<article>
+	<div id="PTORateContainer" class="container" style="float:left; margin-left:15%; margin-right:22%;">
+        <label for="rateInput">PTO Rate</label><br />
+        <input type="text" id="rateInput" name="rateInput" value="3.25" size="3"/>
+    </div>
+    <div id="currentPTOHoursContainer" class="container">
+    	<label for="currentPTOHoursInput">Current PTO Hours</label><br />
+        <input type="text" id="currentPTOHoursInput" name="currentPTOHoursInput" size="5"/>
+    </div>
+    <div id="startDateContainer" class="container" style="float:left; margin-left:15%; margin-right:15%;">
+    	<label for="startDateInput">Start Date</label><br>
+        <input type="text" id="startDateInput" name="startDateInput" size="9">
+    </div>
+    <div id="endDateContainer" class="container" style="margin-left:10%;">
+    	<label for="endDateInput">End Date</label><br>
+        <input type="text" id="endDateInput" name="endDateInput" size="9">
+    </div>
+    <div id="vacDayAddContainer" class="container" style="float:left; margin-left:15%;">
+    	<label for="vacDayToAddInput">Add Vacation Day</label><br />
+        <input type="text" id="vacDayToAddInput" name="vacDayToAddInput" class="datepicker" size="9"/>
+    </div>
+    <div id="vacDaySelectedContainer" class="contianer">
+    	<label>Vacation Days Selected</label><br>
+        <ul id="vacDaysSelected">
+        </ul>
+    </div><br>
+    <h3 id="result" style="text-align:center;"></h3>
+    <input type="button" id="calcBTN" class="button" value="CALCULATE" style="clear:both; width:350px;">
+    
+    
+    
+</article>
+</body>
+</html>
